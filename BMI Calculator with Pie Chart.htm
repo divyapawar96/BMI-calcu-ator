@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"><script type="text/javascript" src="BMI%20Calculator%20with%20Pie%20Chart_files/___vscode_livepreview_injected_script"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMI Calculator with Pie Chart</title>
+    <style>
+        /* Global styles */
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(45deg, #ff007f, #ff7300, #00c6ff, #ff00ff);
+            background-size: 400% 400%;
+            animation: gradientAnimation 5s ease infinite;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        @keyframes gradientAnimation {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        h1 {
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.9); /* Slight transparency */
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        input[type="number"].invalid {
+            border: 2px solid red;
+        }
+
+        button {
+            background-color: #4150a4;
+            color: rgb(79, 205, 157);
+            border: none;
+            padding: 12px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #4560a0;
+        }
+
+        .result {
+            font-size: 18px;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        .advice {
+            font-size: 16px;
+            margin-top: 20px;
+            font-style: italic;
+        }
+
+        canvas {
+            max-width: 100%;
+            height: 250px;
+        }
+
+        .motivational {
+            font-size: 18px;
+            font-weight: bold;
+            color: #4CAF50;
+            margin-top: 10px;
+        }
+
+        .exercise,
+        .food {
+            font-size: 16px;
+            color: #333;
+            margin-top: 15px;
+        }
+
+        .exercise ul,
+        .food ul {
+            list-style-type: square;
+            padding-left: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>BMI Calculator</h1>
+    <div class="container">
+        <label for="weight">Weight (kg):</label>
+        <input type="number" id="weight" placeholder="Enter your weight">
+
+        <label for="height">Height (cm):</label>
+        <input type="number" id="height" placeholder="Enter your height">
+
+        <button onclick="calculateBMI()">Calculate BMI</button>
+
+        <div class="result" id="bmiResult"></div>
+        <div class="motivational" id="motivationalMessage"></div>
+        <div class="advice" id="advice"></div>
+        <canvas id="bmiChart"></canvas>
+    </div>
+
+    <script src="BMI%20Calculator%20with%20Pie%20Chart_files/chart.js"></script>
+    <script>
+        function calculateBMI() {
+            const weight = parseFloat(document.getElementById("weight").value);
+            const height = parseFloat(document.getElementById("height").value) / 100;  // Convert height to meters
+
+            // Clear previous error styling
+            document.getElementById("weight").classList.remove("invalid");
+            document.getElementById("height").classList.remove("invalid");
+
+            // Check if weight and height are valid
+            if (isNaN(weight) || isNaN(height) || weight <= 0 || height <= 0) {
+                alert("Please enter valid weight and height values.");
+                if (isNaN(weight) || weight <= 0) document.getElementById("weight").classList.add("invalid");
+                if (isNaN(height) || height <= 0) document.getElementById("height").classList.add("invalid");
+                return;
+            }
+
+            // Calculate BMI
+            const bmi = parseFloat((weight / (height ** 2)).toFixed(2));
+            let category = "";
+            let color = "";
+            let motivationalMessage = "";
+            let adviceMessage = "";
+
+            // Classify BMI and set appropriate messages and colors
+            if (bmi < 18.5) {
+                category = "Underweight";
+                color = "blue";
+                motivationalMessage = "It's time to fuel your body with healthy foods!";
+                adviceMessage = "Consider eating nutrient-rich foods like nuts, avocados, whole grains, and lean proteins.";
+            } else if (bmi >= 18.5 && bmi < 24.9) {
+                category = "Normal weight";
+                color = "green";
+                motivationalMessage = "Great job! Keep it up, you're on track!";
+                adviceMessage = "Maintain a balanced diet and stay active to keep up your healthy weight.";
+            } else if (bmi >= 25 && bmi < 29.9) {
+                category = "Overweight";
+                color = "orange";
+                motivationalMessage = "Let's work towards your fitness goals!";
+                adviceMessage = "Try incorporating exercises like jogging, cycling, and strength training to stay active.";
+            } else {
+                category = "Obese";
+                color = "red";
+                motivationalMessage = "It's never too late to start working on your health!";
+                adviceMessage = "Consider regular workouts such as swimming, walking, or yoga, and consult a healthcare provider for a proper diet plan.";
+            }
+
+            // Display the BMI result and messages
+            document.getElementById("bmiResult").innerHTML = `BMI: ${bmi} (${category})`;
+            document.getElementById("motivationalMessage").innerHTML = motivationalMessage;
+            document.getElementById("advice").innerHTML = adviceMessage;
+
+            // Display the pie chart
+            displayPieChart(bmi, color);
+        }
+
+        function displayPieChart(bmi, color) {
+            const ctx = document.getElementById('bmiChart').getContext('2d');
+
+            // Clear any existing chart
+            if (window.bmiPieChart) window.bmiPieChart.destroy();
+
+            // Create a new pie chart with more meaningful data
+            window.bmiPieChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ["BMI", "Remaining"],
+                    datasets: [{
+                        data: [bmi, 100 - bmi],  // Show BMI portion and remaining portion to 100
+                        backgroundColor: [color, "#c2c2f0"]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+
+
+
+
+
+</body></html>
